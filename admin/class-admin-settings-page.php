@@ -102,7 +102,7 @@ class ISP_Admin_Settings
     }
 
     // AJAX action for deleting an individual image
-    function delete_custom_image() 
+    function delete_image() 
     {
         if (isset($_POST['image_id'])) {
             $image_id = intval($_POST['image_id']);
@@ -119,7 +119,7 @@ class ISP_Admin_Settings
     }
 
     // AJAX action for deleting all images
-    function delete_all_custom_images() {
+    function delete_all_images() {
         $uploaded_image_ids = get_option('custom_image_attachment_ids', array());
         foreach ($uploaded_image_ids as $image_id) {
             wp_delete_attachment($image_id, true);
@@ -134,8 +134,10 @@ class ISP_Admin_Settings
      */
     public function ajax_delete_img()
     {
-        add_action('wp_ajax_delete_all_images', 'delete_all_custom_images');
-        add_action('wp_ajax_delete_image', 'delete_custom_image');
+        add_action('wp_ajax_delete_all_images', 'delete_all_images');
+        add_action('wp_ajax_nopriv_delete_all_images', 'delete_all_images');
+        add_action('wp_ajax_delete_image', 'delete_image');
+        add_action('wp_ajax_nopriv_delete_image', 'delete_image');
     }
 }
 

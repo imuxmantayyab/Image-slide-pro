@@ -15,7 +15,7 @@ class ISP_Public_slider_show
         add_action('wp_enqueue_scripts', [$public_enqueue_class, 'enqueue_scripts']);
     }
 
-    public function custom_slider_shortcode($atts)
+    public function custom_slider_shortcode()
     {
         // Retrieve the stored image attachment IDs
         $uploaded_image_ids = get_option('custom_image_attachment_ids', array());
