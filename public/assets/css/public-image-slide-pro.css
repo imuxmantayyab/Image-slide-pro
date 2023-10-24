@@ -1,9 +1,10 @@
-/* Reset default margin/padding */
-body, h1, h2, h3, p, ul, li {
+  * {
+    box-sizing: border-box;
     margin: 0;
-    padding: 0;
+    padding: 0 !important;
   }
-  
+
+
   /* Main styles */
   body {
     font-family: Arial, sans-serif;
@@ -13,16 +14,13 @@ body, h1, h2, h3, p, ul, li {
     display: flex;
     overflow: hidden;
     position: relative;
-    width: 1000px;
-    height: 350px;
-    margin: 50px auto;
     flex-direction: column;
-    border-style: ridge;
+    min-width: 100%;
+    padding: 0 !important;
   }
   
   .slider {
     display: flex;
-    /* transition: transform 0.5s ease-in-out; */
   }
   
   .slide {
@@ -41,29 +39,28 @@ body, h1, h2, h3, p, ul, li {
   .nav-buttons {
     display: flex;
     justify-content: space-between;
-    margin-top: 10px;
     cursor: pointer;
     position: absolute;
-    top: 150px;
+    top: 50%;
     width: 100%;
   }
   
-  
-  
   .counter-container {
-    display: flex;
+      display: flex;
       justify-content: center;
       margin-top: 10px;
       font-size: 18px;
-      color: #ff0101;
+      color: #ffffff;
+      background: rgba(0, 0, 0, 0.2);
       position: absolute;
       left: 10px;
       top: 10px;
+      padding: 7px !important;
+      border-radius: 10px;
   }
   
   img{
-    width: 1000px;
-    /* border-radius: 8px; */
+    height: 600px;
   }
   
   .dot {
@@ -90,16 +87,24 @@ body, h1, h2, h3, p, ul, li {
     font-size: 20px;
     cursor: pointer;
     outline: none;
-    color: #ff0101;
-    /* background: wheat; */
+    color: #ffffff;
+    background: rgba(0, 0, 0, 0.2);
+    transition: background 0.3s;
+    border-radius: 55px;
+    padding: 7px !important;
+  }
+  .carousel-control-prev:hover,
+  .carousel-control-next:hover {
+    background: #000;
   }
   
+  
   .carousel-control-prev {
-    margin-right: 10px;
+    margin-left: 10px;
   }
   
   .carousel-control-next {
-    margin-left: 10px;
+    margin-right: 10px;
   }
   
   .slide {

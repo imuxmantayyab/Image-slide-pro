@@ -31,10 +31,7 @@ class CustomSliderShortcodeTest extends TestCase
     
         // Check if the generated slider content contains expected HTML elements
         $this->assertStringContainsString('<div class="slider-container">', $sliderContent);
-        // foreach ($imageIds as $imageId) {
-        //     $this->assertStringContainsString('<img src="', $sliderContent);
-        //     $this->assertStringContainsString('class="slide" alt="Image ' . $imageId . '">', $sliderContent);
-        // }
+        
         $this->assertStringContainsString('<div class="counter-container">', $sliderContent);
         $this->assertStringContainsString('<div class="dot-container">', $sliderContent);
         $this->assertStringContainsString('<div class="nav-buttons">', $sliderContent);

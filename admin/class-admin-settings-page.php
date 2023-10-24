@@ -1,18 +1,14 @@
-<?php 
+<?php
 class ISP_Admin_Settings
 {
     public function __construct()
     {
-        $this->admin_menu_enqueue_scripts();
         $this->enqueue_admin_scripts();
-    }
-
-     /**
-     * Enqueue scripts for the admin menu
-     */
-    public function admin_menu_enqueue_scripts()
-    {
-        add_action('admin_menu', [$this, 'add_settings_page']);
+        add_action('init', [$this, 'create_image_slider_cpt']);
+        add_action('add_meta_boxes', [$this, 'add_image_slider_custom_meta_box']);
+        add_action('wp_ajax_delete_image_slider_images', [$this, 'delete_image_slider_images']);
+        add_action('wp_ajax_nopriv_delete_image_slider_images', [$this, 'delete_image_slider_images']);
+         add_action('save_post', [$this, 'save_image_slider_meta_data']);
     }
 
     /**
@@ -24,122 +20,139 @@ class ISP_Admin_Settings
         add_action('admin_enqueue_scripts', [$admin_enqueue_class, 'enqueue_scripts']);
     }
 
-    public function add_settings_page()
+    function create_image_slider_cpt() 
     {
-        add_menu_page(
-            'Image Slide Pro Settings', // Page title
-            'Image Slide Pro',          // Menu title
-            'manage_options',           // Capability
-            'isp-settings',             // Menu slug
-            [$this, 'settings_page_content'], // Callback function
-            'dashicons-images-alt2',    // Icon
-            30                          // Position
+        $labels = array(
+            'name' => _x('Image Slider Pro', 'Post Type General Name', 'isp'),
+            'singular_name' => _x('Slider', 'Post Type Singular Name', 'isp'),
+            'menu_name' => _x('Image Slider Pro', 'Admin Menu text', 'isp'),
+            'name_admin_bar' => _x('Slider', 'Add New on Toolbar', 'isp'),
+            'archives' => __('Slider Archives', 'isp'),
+            'attributes' => __('Slider Attributes', 'isp'),
+            'parent_item_colon' => __('Parent Slider:', 'isp'),
+            'all_items' => __('All Image Slider Pro', 'isp'),
+            'add_new_item' => __('Add New Slider', 'isp'),
+            'add_new' => __('Add New', 'isp'),
+            'new_item' => __('New Slider', 'isp'),
+            'edit_item' => __('Edit Slider', 'isp'),
+            'update_item' => __('Update Slider', 'isp'),
+            'view_item' => __('View Slider', 'isp'),
+            'view_items' => __('View Image Slider Pro', 'isp'),
+            'search_items' => __('Search Slider', 'isp'),
+            'not_found' => __('Not found', 'isp'),
+            'not_found_in_trash' => __('Not found in Trash', 'isp'),
+            'featured_image' => __('Featured Image', 'isp'),
+            'set_featured_image' => __('Set featured image', 'isp'),
+            'remove_featured_image' => __('Remove featured image', 'isp'),
+            'use_featured_image' => __('Use as featured image', 'isp'),
+            'insert_into_item' => __('Insert into Slider', 'isp'),
+            'uploaded_to_this_item' => __('Uploaded to this Slider', 'isp'),
+            'items_list' => __('Image Slider Pro list', 'isp'),
+            'items_list_navigation' => __('Image Slider Pro list navigation', 'isp'),
+            'filter_items_list' => __('Filter Image Slider Pro list', 'isp'),
         );
+        $args = array(
+            'label' => __('Slider', 'isp'),
+            'description' => __('', 'isp'),
+            'labels' => $labels,
+            'menu_icon' => 'dashicons-images-alt2',
+            'supports' => array('title'),
+            'taxonomies' => array(),
+            'public' => true,
+            'show_ui' => true,
+            'show_in_menu' => true,
+            'menu_position' => 20,
+            'show_in_admin_bar' => true,
+            'show_in_nav_menus' => true,
+            'can_export' => true,
+            'has_archive' => true,
+            'hierarchical' => false,
+            'exclude_from_search' => false,
+            'show_in_rest' => true,
+            'publicly_queryable' => true,
+            'capability_type' => 'page',
+        );
+            register_post_type('image_slider', $args);
     }
 
-    function settings_page_content() 
+    function add_image_slider_custom_meta_box() 
     {
-            // Handle image upload and settings update here
-            $upload_message = ''; // Initialize upload message
+        add_meta_box(
+            'image_slider_meta_box',
+            'Slider Media Gallery',
+            [$this, 'render_image_slider_meta_box'],
+            'image_slider',
+            'normal',
+            'high'
+        );
+    }
+    
+    function render_image_slider_meta_box($post) 
+    {
+        // Retrieve the stored image IDs
+        $slider_image_ids = get_post_meta($post->ID, '_image_slider_image_ids', true);
+        $slider_image_urls = array();
 
-            if (isset($_POST['upload_image'])) {
-                if (!empty($_FILES['image_upload']['name'])) {
-                    $uploaded_image_id = media_handle_upload('image_upload', 0); // Upload the image to the media library
-        
-                    if (is_wp_error($uploaded_image_id)) {
-                        $upload_message = '<div class="notice notice-error is-dismissible"><p>' . esc_html($uploaded_image_id->get_error_message()) . '</p></div>';
-                        echo $upload_message;
-                    } else {
-                        $upload_message = '<div class="notice notice-success is-dismissible"><p>Image uploaded successfully.</p></div>';
-                        echo $upload_message;
-                        $uploaded_image_ids = get_option('custom_image_attachment_ids', array());
-                        $uploaded_image_ids[] = $uploaded_image_id;
-                        update_option('custom_image_attachment_ids', $uploaded_image_ids); // Store the image IDs in options
-                    }
-                }
+        if (is_array($slider_image_ids)) {
+            foreach ($slider_image_ids as $image_id) {
+                $slider_image_urls[] = wp_get_attachment_url($image_id);
             }
-
-        // Display the settings page
+        }
         ?>
-         
         <div class="wrap">
-            <h1>Image Slide Pro Settings</h1>
-            <div class="notice notice-warning is-dismissible" id="shortcode">
-                <p><strong>Pro Tip:</strong> Use this shortcode to display a beautiful slider on your site!</p>
-                <button disabled class="button button-secondary"><?php echo '[custom_slider]'; ?></button>
+            <div class="slider-top-header">
+                <button type="button" id="open-media-uploader" class="button button-secondary"><span class="dashicons-before dashicons-admin-media"></span> Add Media</button>
             </div>
-            <div class="notice notice-warning is-dismissible">
-                <p><strong>Pro Tip:</strong> Use drag and drop to reorder images; changes will be saved automatically!</p>
-            </div>
-            <form method="post" enctype="multipart/form-data">
-                <div class="slider-top-header">
-                    <input type="file" name="image_upload" id="image_upload">
-                    <!-- Display the slider using shortcode -->
-                    <button type="button" id="delete-all-images" class="button button-secondry">Delete All</button>
-                    <button type="submit" name="upload_image" class="upload_image button button-primary">Upload</button>
-                </div>
-            </form>
-            <?php
-            // Display the uploaded images if available
-            $uploaded_image_ids = get_option('custom_image_attachment_ids', array());
-            if (!empty($uploaded_image_ids)) {
-                ?>
-                <div class="image-container">
-                    <?php
-                    foreach ($uploaded_image_ids as $image_id) {
-                        echo '<div class="uploaded-image" data-image-id="' . $image_id . '">';
-                        echo wp_get_attachment_image($image_id);
-                        echo '<button type="button" class="delete-button" data-image-id="' . $image_id . '">&times;</button>';
-                        echo '</div>';
-                    }
-                    ?>
-                </div>
+            <div class="slider-image-preview image-container" style="margin-top: 10px;">
                 <?php
-            }
-            ?>
+                foreach ($slider_image_urls as $image_url) {
+                    // Get a unique image ID for each image
+                    $image_id = attachment_url_to_postid($image_url);
+                    ?>
+                    <div class="uploaded-image" data-image-id="<?php echo esc_attr($image_id); ?>">
+                        <img class="slider-image" src="<?php echo esc_url($image_url); ?>">
+                        <button type="button" class="delete-button" data-image-id="<?php echo esc_attr($image_id); ?>">&times;</button>
+                        <input type="hidden" class="slider-image-id" name="image_slider_image_ids[]" value="<?php echo esc_attr($image_id); ?>">
+                    </div>
+                    <?php
+                }
+                ?>
+            </div>
         </div>
         <?php
     }
 
-    // AJAX action for deleting an individual image
-    function delete_image() 
+    function save_image_slider_meta_data($post_id) 
     {
-        if (isset($_POST['image_id'])) {
-            $image_id = intval($_POST['image_id']);
-            wp_delete_attachment($image_id, true);
+        if (isset($_POST['image_slider_image_ids'])) {
+            $image_ids = array_map('intval', $_POST['image_slider_image_ids']);
+            
+            // Check if there are image IDs to update
+            if (!empty($image_ids)) {
+                update_post_meta($post_id, '_image_slider_image_ids', $image_ids);
+            } else {
+                // If there are no image IDs, set the post meta data to an empty array
+                update_post_meta($post_id, '_image_slider_image_ids', array());
+            }
+        } else {
+            // If image IDs were not provided, set the post meta data to an empty array
+            update_post_meta($post_id, '_image_slider_image_ids', array());
+        }
+    }
+    
 
-            $uploaded_image_ids = get_option('custom_image_attachment_ids', array());
-            $updated_image_ids = array_diff($uploaded_image_ids, array($image_id));
-            update_option('custom_image_attachment_ids', $updated_image_ids);
+    function delete_image_slider_images() 
+    {
 
+        if (isset($_POST['post_id'])) {
+            $post_id = $_POST['post_id'];
+            delete_post_meta($post_id, '_image_slider_image_ids');
             wp_send_json_success();
         } else {
-            wp_send_json_error();
+            wp_send_json_error('Post ID not provided.');
         }
-    }
-
-    // AJAX action for deleting all images
-    function delete_all_images() {
-        $uploaded_image_ids = get_option('custom_image_attachment_ids', array());
-        foreach ($uploaded_image_ids as $image_id) {
-            wp_delete_attachment($image_id, true);
-        }
-        update_option('custom_image_attachment_ids', array());
-
-        wp_send_json_success();
-    }
-
-    /**
-     * ajax_delete_img
-     */
-    public function ajax_delete_img()
-    {
-        add_action('wp_ajax_delete_all_images', 'delete_all_images');
-        add_action('wp_ajax_nopriv_delete_all_images', 'delete_all_images');
-        add_action('wp_ajax_delete_image', 'delete_image');
-        add_action('wp_ajax_nopriv_delete_image', 'delete_image');
-    }
+    } 
 }
 
-// Instantiate the ISP_Admin_Settings class
+// Instantiate the classes
 $isp_admin_settings = new ISP_Admin_Settings();

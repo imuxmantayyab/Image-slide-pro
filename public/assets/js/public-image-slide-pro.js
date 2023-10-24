@@ -46,6 +46,14 @@
       totalCountSpan.text(slideItems.length);
     });
 
+    document.body.addEventListener("keydown", function(KeyboardEvent){
+      if (KeyboardEvent.keyCode === 39 ){
+          document.querySelector(".carousel-control-next").click();
+      }else if (KeyboardEvent.keyCode === 37) {
+        document.querySelector(".carousel-control-prev").click();
+      }
+    })
+
     setInterval(function () {
       slideItems.hide().removeClass('active_img');
       currentIndex = Math.floor(Math.random() * slideItems.length);
@@ -61,3 +69,4 @@
 jQuery(document).ready(function () {
   jQuery('.carousel-control-next, .carousel-control-prev, .slide').imageslidepro();
 });
+

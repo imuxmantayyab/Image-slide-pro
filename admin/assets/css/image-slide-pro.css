@@ -1,19 +1,19 @@
-#shortcode{
+/* Add your CSS styles here */
+#shortcode {
     display: flex;
     justify-content: space-between;
 }
-#delete-all-images{
+#delete-all-images {
     float: right;
     margin-right: 54px;
     margin-left: 5px;
 }
-.upload_image{
+.upload_image {
     float: right;
     margin-right: 15px;
     margin-left: 15px;
 }
 .slider-top-header {
-    
     margin-bottom: 10px;
 }
 .delete-button {
@@ -35,8 +35,31 @@
     position: relative;
     cursor: grab;
 }
- 
-img{
+.slider-image {
     height: 150px;
     width: 150px;
 }
+.slider-top-header{
+    display: flex;
+}
+
+.post-type-image_slider div#edit-slug-box {
+    display: none;
+}
+
+.post-type-image_slider #message a {
+    display: none;
+}
+
+.post-type-image_slider #minor-publishing {
+    display: none;
+}
+
+#the-list .type-image_slider .view {
+    display: none;
+}
+
+.column-shortcode_column .shortcode_column .button:active{
+    margin-top: 13px;
+}
+

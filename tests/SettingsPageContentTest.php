@@ -28,7 +28,6 @@ class SettingsPageContentTest extends WP_UnitTestCase
 
         $output = ob_get_clean(); // Get the buffered output
 
-        var_dump($output);
         // Check if the page content contains specific elements or text you expect
         $this->assertStringContainsString('<h1>Image Slide Pro Settings</h1>', $output);
         $this->assertStringContainsString('<button type="submit" name="upload_image" class="upload_image button button-primary">Upload</button>', $output);
